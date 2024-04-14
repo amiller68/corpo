@@ -20,6 +20,9 @@ pico-args = "0.5.0"
 sqlx = { version = "0.7.4", optional = true, features = [
   "runtime-tokio",
   "sqlite",
+  "time",
+  "uuid",
+  "macros",
 ] }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 tower = { version = "0.4", optional = true }
@@ -42,9 +45,12 @@ tracing-subscriber = { version = "^0.3", default-features = false, features = [
   "tracing",
 ], optional = true }
 reqwest = "0.12.3"
-cid = "0.11.1"
+cid = { version = "0.11.1", features = ["serde"] }
 url = "2.5.0"
 serde = "1.0.197"
+leptos_config = "0.6.11"
+time = { version = "0.3.36", features = ["serde"] }
+multibase = "0.9.1"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]

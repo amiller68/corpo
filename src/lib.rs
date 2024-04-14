@@ -5,9 +5,9 @@ mod config;
 mod database;
 pub mod error_template;
 #[cfg(feature = "ssr")]
-pub mod fileserv;
+mod ipfs;
 #[cfg(feature = "ssr")]
-mod ipfs_gateway;
+pub mod ipfs_serve;
 #[cfg(feature = "ssr")]
 mod state;
 #[cfg(feature = "ssr")]

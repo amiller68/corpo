@@ -20,13 +20,17 @@ impl Default for IpfsGateway {
 }
 
 impl IpfsGateway {
-    pub fn new(url: Url) -> Self {
+    pub fn new(url: &Url) -> Self {
         Self {
-            url,
+            url: url.clone(),
             client: Client::new(),
         }
     }
-    pub async fn get(&self, cid: &Cid, path: Option<PathBuf>) -> Result<Vec<u8>, IpfsGatewayError> {
+    pub async fn get_bytes(
+        &self,
+        cid: &Cid,
+        path: Option<PathBuf>,
+    ) -> Result<Vec<u8>, IpfsGatewayError> {
         let path_string = match path {
             Some(p) => p.to_string_lossy().to_string(),
             None => "".to_string(),
