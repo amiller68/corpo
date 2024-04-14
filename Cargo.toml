@@ -7,19 +7,44 @@ edition = "2021"
 crate-type = ["cdylib", "rlib"]
 
 [dependencies]
+anyhow = "1.0.80"
 axum = { version = "0.7", optional = true }
+bytes = "1.5.0"
 console_error_panic_hook = "0.1"
+dotenvy = "^0.15"
 leptos = { version = "0.6", features = ["nightly"] }
 leptos_axum = { version = "0.6", optional = true }
 leptos_meta = { version = "0.6", features = ["nightly"] }
 leptos_router = { version = "0.6", features = ["nightly"] }
+pico-args = "0.5.0"
+sqlx = { version = "0.7.4", optional = true, features = [
+  "runtime-tokio",
+  "sqlite",
+] }
 tokio = { version = "1", features = ["rt-multi-thread"], optional = true }
 tower = { version = "0.4", optional = true }
 tower-http = { version = "0.5", features = ["fs"], optional = true }
+uuid = { version = "1.8.0", features = ["serde"] }
 wasm-bindgen = "=0.2.92"
 thiserror = "1"
-tracing = { version = "0.1", optional = true }
 http = "1"
+
+tracing = { version = "0.1", optional = true }
+tracing-appender = { version = "^0.2", optional = true }
+tracing-futures = { version = "^0.2", default-features = false, features = [
+  "std-future",
+], optional = true }
+tracing-subscriber = { version = "^0.3", default-features = false, features = [
+  "env-filter",
+  "fmt",
+  "local-time",
+  "time",
+  "tracing",
+], optional = true }
+reqwest = "0.12.3"
+cid = "0.11.1"
+url = "2.5.0"
+serde = "1.0.197"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
@@ -32,7 +57,11 @@ ssr = [
   "leptos/ssr",
   "leptos_meta/ssr",
   "leptos_router/ssr",
+  "dep:sqlx",
   "dep:tracing",
+  "dep:tracing-appender",
+  "dep:tracing-futures",
+  "dep:tracing-subscriber",
 ]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
