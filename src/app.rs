@@ -85,5 +85,9 @@ pub fn App() -> impl IntoView {
 fn HomePage() -> impl IntoView {
     view! {
         <h1>"Welcome to Leptos!"</h1>
+        <p>"Here's an image that im pulling from ipfs"</p>
+        <img src="./obsidian.svg" alt="obsidian" size="500px"/>
+
+
     }
 }

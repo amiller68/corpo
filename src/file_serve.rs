@@ -43,7 +43,14 @@ pub async fn file_and_error_handler(
     // If the IPFS file is found, return it
     if ipfs_res.is_ok() {
         println!("file_and_error_handler: ipfs file found");
-        return ipfs_res.unwrap();
+        // Insert image/svg into the headers
+        let mut ipfs_res = ipfs_res.unwrap();
+        if uri.path().ends_with(".svg") {
+            ipfs_res
+                .headers_mut()
+                .insert("Content-Type", "image/svg+xml".parse().unwrap());
+        }
+        return ipfs_res;
     }
 
     // If both static file and IPFS file are not found, route back to the app
@@ -61,9 +68,16 @@ async fn get_static_file(
         .unwrap();
 
     match ServeDir::new(root).oneshot(req).await {
-        Ok(res) => Ok(Some(res.into_response())),
+        Ok(res) => {
+            if res.status() == StatusCode::OK {
+                Ok(Some(res.into_response()))
+            } else {
+                Ok(None)
+            }
+        }
         Err(err) => {
             if err.to_string().contains("file not found") {
+                println!("get_static_file: file not found");
                 Ok(None)
             } else {
                 Err((
@@ -89,6 +103,7 @@ async fn get_ipfs_file(uri: &Uri, state: &AppState) -> Result<AxumResponse, Ipfs
 
     // Get the most recent root cid. If not set, just pass through to the app
     let maybe_root_cid = RootCid::read_most_recent(&mut conn).await?;
+    println!("get_ipfs_file: maybe_root_cid={:?}", maybe_root_cid);
     let root_cid = match maybe_root_cid {
         Some(root_cid) => root_cid,
         None => {
