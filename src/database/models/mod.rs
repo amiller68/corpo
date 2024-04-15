@@ -37,13 +37,15 @@ impl RootCid {
             Ok(root_cid)
         }
     */
-    pub async fn read_most_recent(conn: &DatabaseConnection) -> Result<RootCid, sqlx::Error> {
+    pub async fn read_most_recent(
+        conn: &mut DatabaseConnection,
+    ) -> Result<Option<RootCid>, sqlx::Error> {
         let root_cid = sqlx::query_as!(
             RootCid,
-            r#"SELECT * FROM root_cids
+            r#"SELECT id, cid as "cid: DCid", created_at FROM root_cids
             ORDER BY created_at DESC LIMIT 1"#
         )
-        .fetch_one(&mut conn)
+        .fetch_optional(&mut *conn)
         .await?;
         Ok(root_cid)
     }
@@ -52,7 +54,7 @@ impl RootCid {
         self.cid.into()
     }
 
-    pub fn id(&self) -> i32 {
+    pub fn id(&self) -> i64 {
         self.id
     }
 

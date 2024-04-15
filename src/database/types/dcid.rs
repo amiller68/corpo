@@ -1,17 +1,26 @@
-use std::borrow::Cow;
-use std::convert::TryFrom;
-
 use cid::Cid;
 use multibase::Base;
 use serde::{Deserialize, Serialize};
 use sqlx::encode::IsNull;
 use sqlx::error::BoxDynError;
 use sqlx::sqlite::{SqliteArgumentValue, SqliteTypeInfo, SqliteValueRef};
-use sqlx::{Decode, Encode, FromRow, Sqlite, Type};
+use sqlx::{Decode, Encode, Sqlite, Type};
 
 #[derive(Clone, Copy, Debug, Deserialize, Serialize)]
 #[serde(transparent)]
 pub struct DCid(Cid);
+
+impl Into<Cid> for DCid {
+    fn into(self) -> Cid {
+        self.0
+    }
+}
+
+impl From<Cid> for DCid {
+    fn from(cid: Cid) -> Self {
+        Self(cid)
+    }
+}
 
 impl Decode<'_, Sqlite> for DCid {
     fn decode(value: SqliteValueRef<'_>) -> Result<Self, BoxDynError> {

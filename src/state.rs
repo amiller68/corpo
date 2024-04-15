@@ -1,9 +1,11 @@
+use axum::extract::FromRef;
+use leptos::{get_configuration, LeptosOptions};
+
 use crate::config::Config;
 use crate::database::Database;
 use crate::ipfs::IpfsGateway;
 
-use leptos::{get_configuration, LeptosOptions};
-
+#[derive(Clone, FromRef)]
 pub struct AppState {
     pub leptos_options: LeptosOptions,
     sqlite_database: Database,

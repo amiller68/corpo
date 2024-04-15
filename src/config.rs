@@ -20,18 +20,18 @@ impl Config {
 
         let sqlite_database_url_str = match env::var("SQLITE_DATABASE_URL") {
             Ok(url) => url,
-            Err(e) => {
-                tracing::warn!("No SQLITE_DATABASE_URL found in .env");
-                return Err(ConfigError::InvalidEnv(e));
+            Err(_e) => {
+                tracing::warn!("No SQLITE_DATABASE_URL found in .env. Using default");
+                "sqlite://./data/server.db".to_string()
             }
         };
         let sqlite_database_url = Url::parse(&sqlite_database_url_str)?;
 
         let ipfs_gateway_url_str = match env::var("IPFS_GATEWAY_URL") {
             Ok(url) => url,
-            Err(e) => {
+            Err(_e) => {
                 tracing::warn!("No IPFS_GATEWAY_URL found in .env");
-                return Err(ConfigError::InvalidEnv(e));
+                "http://localhost:8080".to_string()
             }
         };
         let ipfs_gateway_url = Url::parse(&ipfs_gateway_url_str)?;

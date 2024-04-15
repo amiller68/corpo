@@ -8,7 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 anyhow = "1.0.80"
-axum = { version = "0.7", optional = true }
+axum = { version = "0.7", optional = true, features = ["macros"] }
 bytes = "1.5.0"
 console_error_panic_hook = "0.1"
 dotenvy = "^0.15"

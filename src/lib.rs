@@ -1,15 +1,15 @@
 pub mod app;
 #[cfg(feature = "ssr")]
-mod config;
+pub mod config;
 #[cfg(feature = "ssr")]
 mod database;
 pub mod error_template;
 #[cfg(feature = "ssr")]
-mod ipfs;
+pub mod file_serve;
 #[cfg(feature = "ssr")]
-pub mod ipfs_serve;
+pub mod ipfs;
 #[cfg(feature = "ssr")]
-mod state;
+pub mod state;
 #[cfg(feature = "ssr")]
 mod version;
 

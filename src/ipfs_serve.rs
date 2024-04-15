@@ -1,13 +1,10 @@
 use crate::app::App;
-use crate::ipfs::IpfsGateway;
-use axum::response::Response as AxumResponse;
 use axum::{
     body::Body,
     extract::State,
     http::{Request, Response, StatusCode, Uri},
     response::IntoResponse,
 };
-use tower::ServiceExt;
 
 use crate::database::models::RootCid;
 use crate::state::AppState;
@@ -16,33 +13,39 @@ pub async fn ipfs_and_error_handler(
     uri: Uri,
     State(state): State<AppState>,
     req: Request<Body>,
-) -> impl IntoResponse {
+) -> Result<impl IntoResponse, IpfsServeError> {
+    let leptos_options = state.leptos_options.clone();
     let ipfs_gateway = state.ipfs_gateway();
-    let database = state.database();
-    let conn = database.acquire().await.unwrap();
+    let database = state.sqlite_database();
+    let mut conn = database.acquire().await.unwrap();
 
     // Get the path from the request
     let path = uri.path();
-    // Get the most recent root cid
-    let root_cid = RootCid::read_most_recent(&conn).await?;
 
-    // Fetch the bytes from ipfs
-    let bytes = ipfs_gateway
-        .get_bytes(&root_cid.cid, Some(path.into()))
+    // Get the most recent root cid. If not set, just pass through to the app
+    let maybe_root_cid = RootCid::read_most_recent(&mut conn).await?;
+    let root_cid = match maybe_root_cid {
+        Some(root_cid) => root_cid,
+        None => {
+            let handler = leptos_axum::render_app_to_stream(leptos_options, App);
+            return Ok(handler(req).await);
+        }
+    };
+
+    // Fetch the bytes from ipfs. If the path is not found, just pass through to the app
+    let maybe_bytes = ipfs_gateway
+        .get_bytes(&root_cid.cid(), Some(path.into()))
         .await?;
+    let bytes = match maybe_bytes {
+        Some(bytes) => bytes,
+        None => {
+            let handler = leptos_axum::render_app_to_stream(leptos_options, App);
+            return Ok(handler(req).await);
+        }
+    };
 
-    // TODO: more intelligent content type detection
-    // Create a response with the bytes
-    let res = Response::builder()
-        .status(StatusCode::OK)
-        .body(Body::from(bytes));
-
-    if res.status() == StatusCode::OK {
-        res.into_response()
-    } else {
-        let handler = leptos_axum::render_app_to_stream(options.to_owned(), App);
-        handler(req).await.into_response()
-    }
+    // Return the bytes
+    Ok((StatusCode::OK, bytes).into_response())
 }
 
 #[derive(Debug, thiserror::Error)]
