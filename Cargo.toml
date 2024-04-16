@@ -51,11 +51,16 @@ serde = "1.0.197"
 leptos_config = "0.6.11"
 time = { version = "0.3.36", features = ["serde"] }
 multibase = "0.9.1"
+serde_json = "1.0.115"
+axum-extra = { version = "0.9.3", optional = true, features = [
+  "typed-headers",
+] }
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]
 ssr = [
   "dep:axum",
+  "dep:axum-extra",
   "dep:tokio",
   "dep:tower",
   "dep:tower-http",
@@ -69,6 +74,7 @@ ssr = [
   "dep:tracing-futures",
   "dep:tracing-subscriber",
 ]
+axum-extra = ["dep:axum-extra"]
 
 # Defines a size-optimized profile for the WASM bundle in release mode
 [profile.wasm-release]
@@ -87,7 +93,7 @@ site-root = "target/site"
 
 # The site-root relative folder where all compiled output (JS, WASM and CSS) is written
 # Defaults to pkg
-site-pkg-dir = "pkg"
+site-pkg-dir = "assets"
 
 # Where to find the main CSS file to be used by TailwindCSS
 tailwind-input-file = "style/main.css"

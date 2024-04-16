@@ -8,7 +8,7 @@ use axum::{
 use tower::ServiceExt;
 use tower_http::services::ServeDir;
 
-use crate::app::App;
+use crate::app::WebApp;
 use crate::database::models::RootCid;
 use crate::state::AppState;
 
@@ -54,7 +54,7 @@ pub async fn file_and_error_handler(
     }
 
     // If both static file and IPFS file are not found, route back to the app
-    let handler = leptos_axum::render_app_to_stream(state.leptos_options.clone(), App);
+    let handler = leptos_axum::render_app_to_stream(state.leptos_options.clone(), WebApp);
     handler(req).await.into_response()
 }
 
@@ -107,7 +107,7 @@ async fn get_ipfs_file(uri: &Uri, state: &AppState) -> Result<AxumResponse, Ipfs
     let root_cid = match maybe_root_cid {
         Some(root_cid) => root_cid,
         None => {
-            let handler = leptos_axum::render_app_to_stream(leptos_options, App);
+            let handler = leptos_axum::render_app_to_stream(leptos_options, WebApp);
             return Ok(handler(Request::new(Body::empty())).await.into_response());
         }
     };
@@ -122,7 +122,7 @@ async fn get_ipfs_file(uri: &Uri, state: &AppState) -> Result<AxumResponse, Ipfs
     let bytes = match maybe_bytes {
         Some(bytes) => bytes,
         None => {
-            let handler = leptos_axum::render_app_to_stream(leptos_options, App);
+            let handler = leptos_axum::render_app_to_stream(leptos_options, WebApp);
             return Ok(handler(Request::new(Body::empty())).await.into_response());
         }
     };

@@ -1,5 +1,8 @@
-use dotenvy::dotenv;
+use std::convert::TryFrom;
 use std::env;
+use std::str::FromStr;
+
+use dotenvy::dotenv;
 
 use url::Url;
 
@@ -10,6 +13,9 @@ pub struct Config {
 
     // Ipfs Gateway Config
     ipfs_gateway_url: Url,
+
+    // Logging Level
+    log_level: tracing::Level,
 }
 
 impl Config {
@@ -36,9 +42,25 @@ impl Config {
         };
         let ipfs_gateway_url = Url::parse(&ipfs_gateway_url_str)?;
 
+        let log_level_str = match env::var("LOG_LEVEL") {
+            Ok(level) => level,
+            Err(_e) => {
+                tracing::warn!("No LOG_LEVEL found in .env. Using default");
+                "info".to_string()
+            }
+        };
+        let log_level = match tracing::Level::from_str(&log_level_str) {
+            Ok(level) => level,
+            Err(_e) => {
+                tracing::warn!("Invalid LOG_LEVEL found in .env. Using default");
+                tracing::Level::INFO
+            }
+        };
+
         Ok(Config {
             sqlite_database_url,
             ipfs_gateway_url,
+            log_level,
         })
     }
 
@@ -48,6 +70,10 @@ impl Config {
 
     pub fn ipfs_gateway_url(&self) -> &Url {
         &self.ipfs_gateway_url
+    }
+
+    pub fn log_level(&self) -> &tracing::Level {
+        &self.log_level
     }
 }
 
