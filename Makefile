@@ -33,8 +33,8 @@ clippy:
 .PHONY: sqlite
 sqlite:
 	./bin/sqlite.sh create && \
-		./bin/sqlite.sh queries && \
-			./bin/sqlite.sh migrate
+			./bin/sqlite.sh migrate && \
+				./bin/sqlite.sh queries
 
 .PHONY: sqlite-clean
 sqlite-clean:

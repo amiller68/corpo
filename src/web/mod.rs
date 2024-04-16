@@ -1,10 +1,13 @@
-use crate::error_template::{AppError, ErrorTemplate};
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 
+mod error_template;
+
+use error_template::{ErrorTemplate, WebAppError};
+
 #[component]
-pub fn App() -> impl IntoView {
+pub fn WebApp() -> impl IntoView {
     // Provides context that manages stylesheets, titles, meta tags, etc.
     provide_meta_context();
 
@@ -28,7 +31,7 @@ pub fn App() -> impl IntoView {
 
       // injects a stylesheet into the document <head>
       // id=leptos means cargo-leptos will hot-reload this stylesheet
-      <Stylesheet id="leptos" href="/pkg/corpo.css"/>
+      <Stylesheet id="leptos" href="/assets/corpo.css"/>
 
       // sets the document title
       <Title text="Krondor"/>
@@ -36,7 +39,7 @@ pub fn App() -> impl IntoView {
       // content for this welcome page
       <Router fallback=|| {
           let mut outside_errors = Errors::default();
-          outside_errors.insert_with_default_key(AppError::NotFound);
+          outside_errors.insert_with_default_key(WebAppError::NotFound);
           view! {
               <ErrorTemplate outside_errors/>
           }
@@ -85,5 +88,9 @@ pub fn App() -> impl IntoView {
 fn HomePage() -> impl IntoView {
     view! {
         <h1>"Welcome to Leptos!"</h1>
+        <p>"Here's an image that im pulling from ipfs"</p>
+        <img src="./obsidian.svg" alt="obsidian" size="500px"/>
+
+
     }
 }

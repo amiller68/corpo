@@ -3,15 +3,15 @@ use leptos::*;
 use thiserror::Error;
 
 #[derive(Clone, Debug, Error)]
-pub enum AppError {
+pub enum WebAppError {
     #[error("Not Found")]
     NotFound,
 }
 
-impl AppError {
+impl WebAppError {
     pub fn status_code(&self) -> StatusCode {
         match self {
-            AppError::NotFound => StatusCode::NOT_FOUND,
+            WebAppError::NotFound => StatusCode::NOT_FOUND,
         }
     }
 }
@@ -34,9 +34,9 @@ pub fn ErrorTemplate(
     let errors = errors.get_untracked();
 
     // Downcast lets us take a type that implements `std::error::Error`
-    let errors: Vec<AppError> = errors
+    let errors: Vec<WebAppError> = errors
         .into_iter()
-        .filter_map(|(_k, v)| v.downcast_ref::<AppError>().cloned())
+        .filter_map(|(_k, v)| v.downcast_ref::<WebAppError>().cloned())
         .collect();
     println!("Errors: {errors:#?}");
 
