@@ -1,4 +1,3 @@
-use std::convert::TryFrom;
 use std::env;
 use std::str::FromStr;
 
@@ -19,7 +18,7 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn parse_env() -> Result<Config, ConfigError> {
+    pub fn from_env() -> Result<Config, ConfigError> {
         if dotenv().is_err() {
             tracing::warn!("No .env file found");
         }

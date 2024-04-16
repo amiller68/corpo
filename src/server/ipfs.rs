@@ -1,25 +1,10 @@
-use axum::response::Response as AxumResponse;
-use axum::{
-    body::Body,
-    extract::State,
-    http::{Request, Response, StatusCode, Uri},
-    response::IntoResponse,
-};
-use axum_extra::TypedHeader;
+use axum::http::Uri;
 use cid::Cid;
-use headers::ContentType;
-use tower::ServiceExt;
-use tower_http::services::ServeDir;
 
-use crate::app::App;
+use crate::app::AppState;
 use crate::database::models::RootCid;
-use crate::state::AppState;
 
-pub async fn serve_ipfs_root(
-    uri: Uri,
-    state: &AppState,
-    content_type: TypedHeader<ContentType>,
-) -> Result<Vec<u8>, IpfsServeError> {
+pub async fn serve_root(uri: Uri, state: &AppState) -> Result<Vec<u8>, IpfsServeError> {
     let ipfs_gateway = state.ipfs_gateway();
     let database = state.sqlite_database();
 
@@ -45,17 +30,14 @@ pub async fn serve_ipfs_root(
     let bytes = match maybe_bytes {
         Some(bytes) => bytes,
         None => {
-            return Err(IpfsServeError::MissingIpfsContent(root_cid.cid().clone(), path.into()))
+            return Err(IpfsServeError::MissingIpfsContent(
+                root_cid.cid().clone(),
+                path.into(),
+            ))
         }
     };
 
-    let response = Response::builder()
-        .status(StatusCode::OK)
-        .header(content_type)
-        .body(Body::from(bytes))
-        .unwrap();
-
-    Ok(response)
+    Ok(bytes)
 }
 
 #[derive(Debug, thiserror::Error)]

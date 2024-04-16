@@ -2,14 +2,13 @@ use axum::body::Body;
 use axum::extract::State;
 use axum::http::Request;
 use axum::http::StatusCode;
-use axum::http::Uri;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
+use axum_extra::headers::ContentType;
 use axum_extra::TypedHeader;
-use headers::ContentType;
 
-use crate::app::WebApp;
-use crate::state::AppState;
+use crate::app::AppState;
+use crate::web::WebApp;
 
 pub async fn server_error_handler(error: tower::BoxError) -> Response {
     let mut errors = vec![error.to_string()];
@@ -37,12 +36,8 @@ pub async fn server_error_handler(error: tower::BoxError) -> Response {
     (StatusCode::INTERNAL_SERVER_ERROR, Json(msg)).into_response()
 }
 
-pub async fn not_found_handler(
-    uri: Uri,
-    State(state): State<AppState>,
-    req: Request<Body>,
-    TypedHeader(content_type): TypedHeader<ContentType>,
-) -> Response {
+// TODO: serve the correct leptos page OR styled error page
+pub async fn not_found_handler(TypedHeader(content_type): TypedHeader<ContentType>) -> Response {
     let content_type = content_type.to_string();
 
     match content_type.as_str() {
@@ -51,9 +46,14 @@ pub async fn not_found_handler(
             (StatusCode::NOT_FOUND, Json(err_msg)).into_response()
         }
         "text/html" => {
-            let handler = leptos_axum::render_app_to_stream(state.leptos_options, WebApp);
-            handler(req).await.into_response()
+            let body = "<h1>Not Found</h1>";
+            (StatusCode::NOT_FOUND, body).into_response()
         }
         _ => (StatusCode::NOT_FOUND, "not found").into_response(),
     }
+}
+
+pub async fn redirect_to_app(state: &AppState, req: Request<Body>) -> Response {
+    let handler = leptos_axum::render_app_to_stream(state.leptos_options.clone(), WebApp);
+    handler(req).await.into_response()
 }

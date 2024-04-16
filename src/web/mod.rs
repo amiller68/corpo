@@ -1,7 +1,10 @@
-use crate::error_template::{ErrorTemplate, WebAppError};
 use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
+
+mod error_template;
+
+use error_template::{ErrorTemplate, WebAppError};
 
 #[component]
 pub fn WebApp() -> impl IntoView {
@@ -28,7 +31,7 @@ pub fn WebApp() -> impl IntoView {
 
       // injects a stylesheet into the document <head>
       // id=leptos means cargo-leptos will hot-reload this stylesheet
-      <Stylesheet id="leptos" href="/pkg/corpo.css"/>
+      <Stylesheet id="leptos" href="/assets/corpo.css"/>
 
       // sets the document title
       <Title text="Krondor"/>

@@ -1,38 +1,33 @@
 #[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
-    use axum::Router;
-    use axum::{
-        body::Body as AxumBody, extract::State, http::Request, response::IntoResponse, routing::get,
-    };
-    use corpo::app::*;
-    use corpo::config::Config;
-    use corpo::file_serve::file_and_error_handler;
-    use corpo::state::AppState;
-    use leptos::*;
-    use leptos_axum::{generate_route_list, LeptosRoutes};
+    use std::time::Duration;
+
+    use futures::future::join_all;
+    use tokio::time::timeout;
     use tracing_subscriber::layer::SubscriberExt;
     use tracing_subscriber::util::SubscriberInitExt;
     use tracing_subscriber::{EnvFilter, Layer};
 
-    async fn leptos_routes_handler(
-        State(app_state): State<AppState>,
-        axum::extract::State(option): axum::extract::State<leptos::LeptosOptions>,
-        request: Request<AxumBody>,
-    ) -> axum::response::Response {
-        let handler = leptos_axum::render_app_async_with_context(
-            option.clone(),
-            move || {
-                provide_context(app_state.clone());
-            },
-            move || view! {  <App/> },
-        );
+    use corpo::app::{AppState, Config};
 
-        handler(request).await.into_response()
-    }
+    const FINAL_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(30);
 
+    // Get the configuration from the environment
+    let config = match Config::from_env() {
+        Ok(config) => config,
+        Err(e) => {
+            eprintln!("Error loading configuration: {}", e);
+            std::process::exit(2);
+        }
+    };
+
+    // Set up logging
+    // TODO: conditional text decoration depending on the environment
     let (non_blocking_writer, _guard) = tracing_appender::non_blocking(std::io::stdout());
-    let env_filter = EnvFilter::builder().from_env_lossy();
+    let env_filter = EnvFilter::builder()
+        .with_default_directive((*config.log_level()).into())
+        .from_env_lossy();
 
     let stderr_layer = tracing_subscriber::fmt::layer()
         .compact()
@@ -41,27 +36,36 @@ async fn main() {
 
     tracing_subscriber::registry().with(stderr_layer).init();
 
-    // Get the configuration from the environment
-    let config = Config::parse_env().unwrap();
-    let state = AppState::from_config(&config).await.unwrap();
+    corpo::ssr::register_panic_logger();
+    corpo::ssr::report_version();
 
-    let leptos_options = state.leptos_options.clone();
+    // Create the app state
+    let state = match AppState::from_config(&config).await {
+        Ok(state) => state,
+        Err(e) => {
+            eprintln!("Error creating app state: {}", e);
+            std::process::exit(3);
+        }
+    };
 
-    let addr = leptos_options.site_addr;
-    let routes = generate_route_list(App);
+    let (graceful_waiter, shutdown_rx) = corpo::ssr::graceful_shutdown_blocker();
+    let mut handles = Vec::new();
 
-    // build our application with a route
-    let app = Router::new()
-        .leptos_routes_with_handler(routes, get(leptos_routes_handler))
-        // .leptos_routes(&leptos_options, routes, App)
-        .fallback(file_and_error_handler)
-        .with_state(state.clone());
+    let server = corpo::ssr::server(*config.log_level(), state, shutdown_rx).await;
+    handles.push(server);
 
-    let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
-    logging::log!("listening on http://{}", &addr);
-    axum::serve(listener, app.into_make_service())
+    let _ = graceful_waiter.await;
+
+    if timeout(FINAL_SHUTDOWN_TIMEOUT, join_all(handles))
         .await
-        .unwrap();
+        .is_err()
+    {
+        tracing::error!(
+            "Failed to shut down within {} seconds",
+            FINAL_SHUTDOWN_TIMEOUT.as_secs()
+        );
+        std::process::exit(4);
+    }
 }
 
 #[cfg(not(feature = "ssr"))]

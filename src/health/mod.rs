@@ -16,7 +16,7 @@ use crate::app::AppState;
 /// among these bytes in the limit. Large requests here should always be rejected.
 const HEALTHCHECK_REQUEST_SIZE_LIMIT: usize = 1_024;
 
-pub fn router(state: AppState) -> Router<State> {
+pub fn router(state: AppState) -> Router<AppState> {
     let cors_layer = CorsLayer::new()
         .allow_methods(vec![Method::GET])
         .allow_headers(vec![ACCEPT, ORIGIN])
