@@ -3,8 +3,10 @@ use leptos_meta::*;
 use leptos_router::*;
 
 mod error_template;
+mod pages;
 
 use error_template::{ErrorTemplate, WebAppError};
+use pages::{AboutPage, ContentPage, HomePage};
 
 #[component]
 pub fn WebApp() -> impl IntoView {
@@ -53,6 +55,7 @@ pub fn WebApp() -> impl IntoView {
                       <ul on:click=toggle_menu_dialog>
                           <li><A href="">Home</A></li>
                           <li><A href="about">About</A></li>
+                          <li><A href="content">Content</A></li>
                       </ul>
                   </nav>
                   <button on:click=toggle_menu_dialog>
@@ -76,21 +79,11 @@ pub fn WebApp() -> impl IntoView {
           </header>
           <main>
               <Routes>
-                  <Route path="" view=HomePage/>
+                <Route path="" view=HomePage/>
+                <Route path="about" view=AboutPage/>
+                <Route path="content" view=ContentPage/>
               </Routes>
           </main>
       </Router>
-    }
-}
-
-/// Renders the home page of your application.
-#[component]
-fn HomePage() -> impl IntoView {
-    view! {
-        <h1>"Welcome to Leptos!"</h1>
-        <p>"Here's an image that im pulling from ipfs"</p>
-        <img src="./obsidian.svg" alt="obsidian" size="500px"/>
-
-
     }
 }
