@@ -1,8 +1,7 @@
 use http::status::StatusCode;
 use leptos::*;
-use thiserror::Error;
 
-#[derive(Clone, Debug, Error)]
+#[derive(Clone, Debug, thiserror::Error)]
 pub enum WebAppError {
     #[error("Not Found")]
     NotFound,

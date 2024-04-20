@@ -2,11 +2,12 @@ use leptos::*;
 use leptos_meta::*;
 use leptos_router::*;
 
-mod error_template;
+mod error;
 mod pages;
 
-use error_template::{ErrorTemplate, WebAppError};
-use pages::{AboutPage, ContentPage, HomePage};
+use pages::{AboutPage, ErrorPage, HomePage};
+
+pub use error::WebAppError;
 
 #[component]
 pub fn WebApp() -> impl IntoView {
@@ -26,10 +27,11 @@ pub fn WebApp() -> impl IntoView {
 
     view! {
 
+      <Link rel="icon" sizes="32x32" href="/favicon.ico"/>
       <Link rel="preconnect" href="https://fonts.googleapis.com"/>
       <Link rel="preconnect" href="https://fonts.gstatic.com"/>
       <Link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100..700;1,100..700&family=VT323&display=swap" rel="stylesheet"/>
-
+      <Script src="https://unpkg.com/htmx.org@2.0.0-alpha1/dist/htmx.min.js"/>
 
       // injects a stylesheet into the document <head>
       // id=leptos means cargo-leptos will hot-reload this stylesheet
@@ -43,30 +45,33 @@ pub fn WebApp() -> impl IntoView {
           let mut outside_errors = Errors::default();
           outside_errors.insert_with_default_key(WebAppError::NotFound);
           view! {
-              <ErrorTemplate outside_errors/>
+              <ErrorPage outside_errors/>
           }
           .into_view()
       }>
+          <header class="relative">
           <dialog
-              id="menu-dialog"
+              on:click=toggle_menu_dialog
               ref=menu_dialog_ref>
-              <div id="menu">
+              <div class="menu">
                   <nav>
-                      <ul on:click=toggle_menu_dialog>
+                      <ul>
                           <li><A href="">Home</A></li>
                           <li><A href="about">About</A></li>
-                          <li><A href="content">Content</A></li>
+                          <li><A href="https://blog.krondor.org">Blog</A></li>
                       </ul>
                   </nav>
-                  <button on:click=toggle_menu_dialog>
-                      <span> > X </span>
-                  </button>
+                  <span
+                    id="menu-close">
+                    <p>
+                    > X
+                    </p>
+                  </span>
               </div>
           </dialog>
-          <header class="relative">
               <div class="container mx-auto flex justify-between items-center h-[4rem]">
-                  <span class="text-6xl">
-                      K r o n d o r
+                  <span id="banner">
+                    <A href="">K r o n d o r</A>
                   </span>
                   <div class="flex items-center">
                       <input type="checkbox" id="menu-toggle" class="hidden m2-2 form-checkbox" on:click=toggle_menu_dialog />
@@ -81,7 +86,6 @@ pub fn WebApp() -> impl IntoView {
               <Routes>
                 <Route path="" view=HomePage/>
                 <Route path="about" view=AboutPage/>
-                <Route path="content" view=ContentPage/>
               </Routes>
           </main>
       </Router>

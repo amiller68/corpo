@@ -1,7 +1,7 @@
 mod about;
-mod content;
+mod error;
 mod home;
 
 pub use about::AboutPage;
-pub use content::ContentPage;
+pub use error::ErrorPage;
 pub use home::HomePage;

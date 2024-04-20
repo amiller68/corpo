@@ -2,7 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Gloabl Styles */
 @layer utilities {
   .font-roboto-mono {
     font-family: "Roboto Mono", monospace;
@@ -19,91 +18,42 @@
   }
 }
 
-/* Header and Menu Styles */
+/* App Level Styles */
+
 header {
-  @apply font-vt323 w-full fixed top-0 z-10;
+  @apply flex flex-col font-vt323 w-full fixed top-0 z-10;
+  #banner {
+    @apply text-6xl;
+    :hover {
+      @apply scale-110;
+    }
+  }
 }
 
-#menu-dialog {
-  @apply h-screen w-screen font-vt323 text-2xl py-4 px-6 bg-black bg-opacity-20;
+dialog {
+  @apply h-screen w-screen text-2xl py-4 px-6 bg-black bg-opacity-20;
   z-index: 999;
-  #menu {
-    left: 15%;
-    top: 15%;
-    @apply relative m-4 w-[70%] rounded-lg shadow-xl bg-white;
-    ul {
-      @apply flex flex-col gap-2 p-4 items-center;
-      :hover {
-        @apply scale-110;
-      }
+}
+
+.menu {
+  left: 15%;
+  top: 15%;
+  @apply relative m-4 w-[70%] rounded-lg shadow-xl bg-white border-2 border-black;
+  ul {
+    @apply flex flex-col gap-2 p-4 items-center;
+    :hover {
+      @apply scale-110;
     }
-    button {
-      @apply absolute top-2 right-2;
-      :hover {
-        @apply scale-110;
-      }
+  }
+  #menu-close {
+    @apply flex flex-col absolute top-2 right-2;
+    :hover {
+      @apply scale-110;
     }
   }
 }
 
 /* Main Page Content */
 main {
-  @apply font-roboto-mono fixed top-0 left-0 w-full px-2.5 pt-2.5 pb-2.5 pl-12 leading-7 z-0;
-  display: block;
-  text-align: left;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 52px;
-  width: 100%;
-  height: calc(100% - 50px);
-  padding: 20px;
-}
-
-/* Index Page Content */
-.index {
-  text-align: center;
-  margin-top: 150px;
-  margin-left: auto;
-  margin-right: auto;
-  width: 60%;
-  h1 {
-    @apply text-4xl font-bold;
-  }
-}
-
-/* Md Content */
-
-.md {
-  @apply mx-auto text-left block px-4;
-  padding-bottom: 16%; /* Adjust as needed */
-  h1 {
-    @apply text-2xl font-bold;
-  }
-  h2 {
-    @apply text-xl font-bold;
-  }
-  a {
-    @apply underline;
-  }
-  a:hover {
-    @apply italic;
-  }
-  ul {
-    @apply list-disc list-inside;
-  }
-}
-
-.socials {
-  @apply flex justify-center items-center gap-4 py-3;
-}
-
-/* Example of styling for social media icons in the footer */
-.socials .icon {
-  @apply inline-block w-6 h-6; /* Adjust width and height as needed */
-  fill: black; /* If SVGs allow fill styling */
-  filter: brightness(0) invert(1);
-}
-
-.socials .icon:hover {
-  @apply scale-110; /* Slightly enlarge icon on hover for interactive feedback */
+  @apply font-roboto-mono
 }
