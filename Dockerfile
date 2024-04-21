@@ -32,9 +32,8 @@ RUN apt-get update -y \
   && apt-get clean -y \
   && rm -rf /var/lib/apt/lists/*
 
-# -- NB: update binary name from "leptos_start" to match your app name in Cargo.toml --
 # Copy the server binary to the /app directory
-COPY --from=builder /app/target/release/leptos_start /app/
+COPY --from=builder /app/target/release/corpo /app/
 
 # /target/site contains our JS/WASM/CSS, etc.
 COPY --from=builder /app/target/site /app/site
@@ -48,7 +47,6 @@ ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
 ENV LEPTOS_SITE_ROOT="site"
 EXPOSE 3000
 
-# -- NB: update binary name from "leptos_start" to match your app name in Cargo.toml --
 # Run the server
-CMD ["/app/leptos_start"]
+CMD ["/app/corpo"]
 
