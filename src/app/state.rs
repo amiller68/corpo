@@ -2,7 +2,7 @@ use axum::extract::FromRef;
 use leptos::{get_configuration, LeptosOptions};
 
 use super::config::Config;
-use crate::database::Database;
+// use crate::database::Database;
 use crate::ipfs::IpfsGateway;
 
 #[derive(Clone, FromRef)]
