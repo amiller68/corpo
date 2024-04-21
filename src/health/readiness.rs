@@ -28,7 +28,7 @@ mod tests {
 
     use super::*;
 
-    use crate::health_check::data_source::tests::*;
+    use crate::health::data_source::tests::*;
 
     #[tokio::test]
     async fn test_handler_direct() {

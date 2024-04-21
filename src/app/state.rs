@@ -8,15 +8,17 @@ use crate::ipfs::IpfsGateway;
 #[derive(Clone, FromRef)]
 pub struct AppState {
     pub leptos_options: LeptosOptions,
-    sqlite_database: Database,
+    // sqlite_database: Database,
     ipfs_gateway: IpfsGateway,
 }
 
 #[allow(dead_code)]
 impl AppState {
+    /*
     pub fn sqlite_database(&self) -> &Database {
         &self.sqlite_database
     }
+    */
 
     pub fn ipfs_gateway(&self) -> &IpfsGateway {
         &self.ipfs_gateway
@@ -25,12 +27,12 @@ impl AppState {
     pub async fn from_config(config: &Config) -> Result<Self, AppStateSetupError> {
         let conf = get_configuration(None).await?;
         let leptos_options = conf.leptos_options;
-        let sqlite_database = Database::connect(config.sqlite_database_url()).await?;
+        // let sqlite_database = Database::connect(config.sqlite_database_url()).await?;
         let ipfs_gateway = IpfsGateway::new(config.ipfs_gateway_url());
 
         Ok(Self {
             leptos_options,
-            sqlite_database,
+            // sqlite_database,
             ipfs_gateway,
         })
     }
