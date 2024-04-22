@@ -24,7 +24,7 @@ COPY . .
 # Build the app
 RUN cargo leptos build --release -vv
 
-FROM debian:bookworm-slim as runtime
+FROM debian:bullseye-slim as runtime
 WORKDIR /app
 RUN apt-get update -y \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
@@ -45,6 +45,7 @@ COPY --from=builder /app/Cargo.toml /app/
 ENV RUST_LOG="info"
 ENV LEPTOS_SITE_ADDR="0.0.0.0:3000"
 ENV LEPTOS_SITE_ROOT="site"
+ENV LEPTOS_SITE_PKG_DIR="assets"
 EXPOSE 3000
 
 # Run the server
