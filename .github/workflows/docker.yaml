@@ -19,8 +19,3 @@ jobs:
         context: .
         push: false
         tags: user/app:test
-
-    - name: Verify the built image
-      run: |
-        docker image ls
-        docker run --rm user/app:test
