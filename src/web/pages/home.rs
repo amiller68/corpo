@@ -5,10 +5,10 @@ use leptos_icons::*;
 #[component]
 pub fn HomePage() -> impl IntoView {
     view! {
-        <div class="flex flex-col items-center justify-center h-[80vh]">
+        <div class="flex flex-col items-center justify-center h-[80vh] w-[80vw] mx-auto">
                 <h1
                     class="relative w-[max-content] font-mono text-2xl before:absolute before:inset-0 before:animate-typewriter before:bg-white after:absolute after:inset-0 after:w-[0.125em] after:animate-caret after:bg-black">
-                    > " hi, it's nice to see u :) "
+                     "> it's nice to see u"
                 </h1>
             <div
                 class="mt-8 flex text-4xl space-x-4"

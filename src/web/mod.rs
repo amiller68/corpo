@@ -86,7 +86,7 @@ pub fn WebApp() -> impl IntoView {
           </dialog>
               <div class="container mx-auto flex justify-between items-center h-[4rem]">
                   <span id="banner">
-                    <A href="">K r o n d o r</A>
+                    <A href="">Krondor</A>
                   </span>
                   <div class="flex items-center">
                       <input type="checkbox" id="menu-toggle" class="hidden m2-2 form-checkbox" on:click=toggle_menu_dialog />
