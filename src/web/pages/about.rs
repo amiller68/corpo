@@ -15,7 +15,7 @@ pub fn AboutPage() -> impl IntoView {
             >
                 <p class="mb-4">
                     "
-                    hey there, my name is alex, im a software engineer with a product minded focus. 
+                    hey there, my name is alex, im a software engineer with a product-minded focus. 
                     "
                 </p>
                 <p class="mb-4">
@@ -23,12 +23,6 @@ pub fn AboutPage() -> impl IntoView {
                     i have a passion for creating software that empowers, engages, and excels. 
                     i'm currently based in new york city, helping people all over the world turn bold ideas into reality.
                     "               
-                </p>
-                <p class="mb-4">
-                    "
-                    My focus is on creating software that empowers, engages, and excels.
-                    From the initial spark of an idea to the final lines of code, every step is a step towards redefining what's possible.
-                    "
                 </p>
                 <p class="mb-4">
                     "
