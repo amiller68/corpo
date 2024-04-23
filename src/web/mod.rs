@@ -21,8 +21,23 @@ pub fn WebApp() -> impl IntoView {
         // Gauranteed to be initialized
         let menu_dialog = menu_dialog_ref.get().unwrap();
         let menu_dialog_open = menu_dialog.open();
+
+        // Check if the click happened outside the menu
         menu_dialog.set_open(!menu_dialog_open);
         set_menu_open(!menu_dialog_open);
+
+        // Toggle the body-no-scroll class
+        let body = web_sys::window()
+            .unwrap()
+            .document()
+            .unwrap()
+            .body()
+            .unwrap();
+        if !menu_dialog_open {
+            body.class_list().add_1("body-no-scroll").unwrap();
+        } else {
+            body.class_list().remove_1("body-no-scroll").unwrap();
+        }
     };
 
     view! {

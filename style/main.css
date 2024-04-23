@@ -21,7 +21,7 @@
 /* App Level Styles */
 
 header {
-  @apply flex flex-col font-vt323 w-full fixed top-0 z-10;
+  @apply flex flex-col font-vt323 w-full fixed top-0 z-10 px-4 py-4;
   #banner {
     @apply text-6xl;
     :hover {
@@ -30,9 +30,19 @@ header {
   }
 }
 
+label {
+  @apply text-sm cursor-pointer mx-4;
+}
+
 dialog {
-  @apply h-screen w-screen text-2xl py-4 px-6 bg-black bg-opacity-20;
+  @apply inset-0 h-screen w-screen text-2xl py-4 px-6 bg-black bg-opacity-20 fixed;
   z-index: 999;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.body-no-scroll {
+  @apply overflow-hidden;
 }
 
 .menu {
@@ -55,5 +65,7 @@ dialog {
 
 /* Main Page Content */
 main {
-  @apply font-roboto-mono
+  @apply font-roboto-mono px-4 py-4;
+  overflow: hidden;
+  touch-action: none;
 }
