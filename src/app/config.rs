@@ -1,4 +1,5 @@
 use std::env;
+use std::net::SocketAddr;
 use std::str::FromStr;
 
 use dotenvy::dotenv;
@@ -7,11 +8,14 @@ use url::Url;
 
 #[derive(Debug)]
 pub struct Config {
+    // Listen address
+    listen_addr: SocketAddr,
+
     // Database Config
     sqlite_database_url: Url,
 
     // Ipfs Gateway Config
-    ipfs_gateway_url: Url,
+    ipfs_api_url: Url,
 
     // Logging Level
     log_level: tracing::Level,
@@ -23,6 +27,15 @@ impl Config {
             tracing::warn!("No .env file found");
         }
 
+        let listen_addr_str = match env::var("LISTEN_ADDR") {
+            Ok(addr) => addr,
+            Err(_e) => {
+                tracing::warn!("No LISTEN_ADDR found in .env. Using default");
+                "::1:3000".to_string()
+            }
+        };
+        let listen_addr = listen_addr_str.parse()?;
+
         let sqlite_database_url_str = match env::var("SQLITE_DATABASE_URL") {
             Ok(url) => url,
             Err(_e) => {
@@ -32,14 +45,14 @@ impl Config {
         };
         let sqlite_database_url = Url::parse(&sqlite_database_url_str)?;
 
-        let ipfs_gateway_url_str = match env::var("IPFS_GATEWAY_URL") {
+        let ipfs_api_url_str = match env::var("IPFS_API_URL") {
             Ok(url) => url,
             Err(_e) => {
-                tracing::warn!("No IPFS_GATEWAY_URL found in .env");
+                tracing::warn!("No IPFS_API_URL found in .env");
                 "http://localhost:8080".to_string()
             }
         };
-        let ipfs_gateway_url = Url::parse(&ipfs_gateway_url_str)?;
+        let ipfs_api_url = Url::parse(&ipfs_api_url_str)?;
 
         let log_level_str = match env::var("LOG_LEVEL") {
             Ok(level) => level,
@@ -57,8 +70,9 @@ impl Config {
         };
 
         Ok(Config {
+            listen_addr,
             sqlite_database_url,
-            ipfs_gateway_url,
+            ipfs_api_url,
             log_level,
         })
     }
@@ -67,12 +81,16 @@ impl Config {
         &self.sqlite_database_url
     }
 
-    pub fn ipfs_gateway_url(&self) -> &Url {
-        &self.ipfs_gateway_url
+    pub fn ipfs_api_url(&self) -> &Url {
+        &self.ipfs_api_url
     }
 
     pub fn log_level(&self) -> &tracing::Level {
         &self.log_level
+    }
+
+    pub fn listen_addr(&self) -> &SocketAddr {
+        &self.listen_addr
     }
 }
 
@@ -82,4 +100,6 @@ pub enum ConfigError {
     InvalidUrl(#[from] url::ParseError),
     #[error("Missing Env: {0}")]
     InvalidEnv(#[from] env::VarError),
+    #[error("Invalid Socket Address: {0}")]
+    InvalidListenAddr(#[from] std::net::AddrParseError),
 }

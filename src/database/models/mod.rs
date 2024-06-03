@@ -9,49 +9,96 @@ use crate::database::DatabaseConnection;
 CREATE TABLE root_cids (
     id SERIAL PRIMARY KEY,
     cid VARCHAR(255) NOT NULL,
+    previous_cid VARCHAR(255) NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE UNIQUE INDEX root_cids_cid_previous_cid ON root_cids (cid, previous_cid);
 */
 
 #[derive(FromRow, Debug)]
 pub struct RootCid {
     id: i64,
     cid: DCid,
+    previous_cid: DCid,
     created_at: OffsetDateTime,
 }
 
 impl RootCid {
-    /*
-        pub async fn create(cid: Cid, conn: &DatabaseConnection) -> Result<RootCid, sqlx::Error> {
-            let dcid = cid.into();
-            let root_cid = sqlx::query_as!(
-                RootCid,
-                r#"
-                INSERT INTO root_cid (cid, created_at)
-                VALUES (DEFAULT, $1, CURRENT_TIMESTAMP)
-                RETURNING *"#,
-                dcid
-            )
-            .fetch_one(conn)
-            .await?;
-            Ok(root_cid)
-        }
-    */
-    pub async fn read_most_recent(
+    pub async fn push(
+        cid: &Cid,
+        previous_cid: &Cid,
         conn: &mut DatabaseConnection,
-    ) -> Result<Option<RootCid>, sqlx::Error> {
+    ) -> Result<RootCid, RootCidError> {
+        // Read the current root cid
+        let maybe_root_cid = RootCid::pull(conn).await?;
+        if let Some(root_cid) = maybe_root_cid {
+            if root_cid.cid() != *previous_cid {
+                return Err(RootCidError::InvalidLink(root_cid.cid(), *previous_cid));
+            }
+        }
+
+        let dcid: DCid = (*cid).into();
+        let dprevious_cid: DCid = (*previous_cid).into();
         let root_cid = sqlx::query_as!(
             RootCid,
-            r#"SELECT id, cid as "cid: DCid", created_at FROM root_cids
-            ORDER BY created_at DESC LIMIT 1"#
+            r#"
+            INSERT INTO root_cids (
+                cid,
+                previous_cid,
+                created_at
+            )
+            VALUES (
+                $1,
+                $2,
+                CURRENT_TIMESTAMP
+            )
+            RETURNING id, cid as "cid: DCid", previous_cid as "previous_cid: DCid", created_at
+            "#,
+            dcid,
+            dprevious_cid
         )
-        .fetch_optional(&mut *conn)
+        .fetch_one(conn)
+        .await
+        .map_err(|e| match e {
+            sqlx::Error::Database(ref db_error) => {
+                if db_error.constraint().unwrap_or("") == "root_cids_cid_previous_cid" {
+                    return RootCidError::Conflict(*cid, *previous_cid);
+                } else {
+                    return e.into();
+                }
+            }
+            _ => return e.into(),
+        })?;
+        Ok(root_cid)
+    }
+
+    pub async fn pull(conn: &mut DatabaseConnection) -> Result<Option<RootCid>, RootCidError> {
+        let root_cid = sqlx::query_as!(
+            RootCid,
+            r#"
+            SELECT 
+                id, 
+                cid as "cid: DCid", 
+                previous_cid as "previous_cid: DCid",
+                created_at
+            FROM root_cids
+            ORDER BY 
+                created_at DESC 
+            LIMIT 1
+            "#
+        )
+        .fetch_optional(conn)
         .await?;
         Ok(root_cid)
     }
 
     pub fn cid(&self) -> Cid {
         self.cid.into()
+    }
+
+    pub fn previous_cid(&self) -> Cid {
+        self.previous_cid.into()
     }
 
     pub fn id(&self) -> i64 {
@@ -61,4 +108,14 @@ impl RootCid {
     pub fn created_at(&self) -> OffsetDateTime {
         self.created_at
     }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum RootCidError {
+    #[error("sqlx: {0}")]
+    Sqlx(#[from] sqlx::Error),
+    #[error("wrong previous cid: {0:?} != {1:?}")]
+    InvalidLink(Cid, Cid),
+    #[error("conflicting Update: {0:?} -> {1:?}")]
+    Conflict(Cid, Cid),
 }

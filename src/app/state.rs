@@ -1,42 +1,55 @@
 use axum::extract::FromRef;
-use leptos::{get_configuration, LeptosOptions};
+use url::Url;
 
 use super::config::Config;
-// use crate::database::Database;
-use crate::ipfs::IpfsGateway;
+use crate::database::Database;
 
-#[derive(Clone, FromRef)]
+#[derive(Clone)]
 pub struct AppState {
-    pub leptos_options: LeptosOptions,
-    // sqlite_database: Database,
-    ipfs_gateway: IpfsGateway,
+    sqlite_database: Database,
+    ipfs_api_url: Url,
+    // TODO: better proxy solution
+    //    ipfs_api_proxy: IpfsApiProxy,
 }
 
 #[allow(dead_code)]
 impl AppState {
-    /*
     pub fn sqlite_database(&self) -> &Database {
         &self.sqlite_database
     }
-    */
 
-    pub fn ipfs_gateway(&self) -> &IpfsGateway {
-        &self.ipfs_gateway
+    pub fn ipfs_api_url(&self) -> &Url {
+        &self.ipfs_api_url
     }
 
+    /*
+        pub fn ipfs_api_proxy(&self) -> &IpfsApiProxy {
+            &self.ipfs_api_proxy
+        }
+    */
     pub async fn from_config(config: &Config) -> Result<Self, AppStateSetupError> {
-        let conf = get_configuration(None).await?;
-        let leptos_options = conf.leptos_options;
-        // let sqlite_database = Database::connect(config.sqlite_database_url()).await?;
-        let ipfs_gateway = IpfsGateway::new(config.ipfs_gateway_url());
+        let sqlite_database = Database::connect(config.sqlite_database_url()).await?;
+        let ipfs_api_url = config.ipfs_api_url().clone();
 
         Ok(Self {
-            leptos_options,
-            // sqlite_database,
-            ipfs_gateway,
+            sqlite_database,
+            ipfs_api_url,
         })
     }
 }
+
+impl FromRef<AppState> for Database {
+    fn from_ref(app_state: &AppState) -> Self {
+        app_state.sqlite_database.clone()
+    }
+}
+/*
+impl FromRef<AppState> for IpfsApiProxy {
+    fn from_ref(app_state: &AppState) -> Self {
+        app_state.ipfs_api_proxy.clone()
+    }
+}
+*/
 
 #[derive(Debug, thiserror::Error)]
 pub enum AppStateSetupError {

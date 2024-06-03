@@ -6,7 +6,7 @@ default: build
 build:
 	cargo build
 
-.PHONY: sqlite chroma ollama
+.PHONY: sqlite ipfs
 run:
 	./bin/run.sh
 
@@ -14,7 +14,7 @@ run:
 check:
 	cargo check
 
-.PHONY: chroma-clean ollama-clean sqlite-clean clean
+.PHONY: ipfs-clean sqlite-clean clean
 clean:
 	cargo clean
 
@@ -40,21 +40,9 @@ sqlite:
 sqlite-clean:
 	./bin/sqlite.sh clean
 
-.PHONY: ollama
-ollama:
-	./bin/ollama.sh run
-
-.PHONY: ollama-clean
-ollama-clean:
-	./bin/ollama.sh clean
-
-.PHONY: chroma
-chroma:
-	./bin/chroma.sh run
-
-.PHONY: chroma-clean
-chroma-clean:
-	./bin/chroma.sh clean
+.PHONY: ipfs
+ipfs-clean:
+	./bin/ipfs.sh clean
 
 .PHONY: test
 test:

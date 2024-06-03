@@ -7,7 +7,8 @@ use tower_http::limit::RequestBodyLimitLayer;
 
 mod data_source;
 mod liveness;
-// mod readiness;
+// TODO: readiness for ipfs as well as database
+mod readiness;
 mod version;
 
 use crate::app::AppState;
@@ -25,7 +26,7 @@ pub fn router(state: AppState) -> Router<AppState> {
 
     Router::new()
         .route("/healthz", get(liveness::handler))
-        // .route("/readyz", get(readiness::handler))
+        .route("/readyz", get(readiness::handler))
         .route("/version", get(version::handler))
         .with_state(state)
         .layer(cors_layer)

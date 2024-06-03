@@ -6,9 +6,6 @@ use axum::Json;
 use axum_extra::headers::ContentType;
 use axum_extra::TypedHeader;
 
-use crate::app::AppState;
-use crate::web::WebApp;
-
 pub async fn not_found_handler(TypedHeader(content_type): TypedHeader<ContentType>) -> Response {
     let content_type = content_type.to_string();
 
@@ -23,9 +20,4 @@ pub async fn not_found_handler(TypedHeader(content_type): TypedHeader<ContentTyp
         }
         _ => (StatusCode::NOT_FOUND, "not found").into_response(),
     }
-}
-
-pub async fn redirect_to_app(state: &AppState, req: Request<Body>) -> Response {
-    let handler = leptos_axum::render_app_to_stream(state.leptos_options.clone(), WebApp);
-    handler(req).await.into_response()
 }

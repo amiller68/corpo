@@ -1,4 +1,3 @@
-#[cfg(feature = "ssr")]
 #[tokio::main]
 async fn main() {
     use std::time::Duration;
@@ -9,7 +8,7 @@ async fn main() {
     use tracing_subscriber::util::SubscriberInitExt;
     use tracing_subscriber::{EnvFilter, Layer};
 
-    use corpo::app::{AppState, Config};
+    use leaky_server::app::{AppState, Config};
 
     const FINAL_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(30);
 
@@ -36,8 +35,8 @@ async fn main() {
 
     tracing_subscriber::registry().with(stderr_layer).init();
 
-    corpo::ssr::register_panic_logger();
-    corpo::ssr::report_version();
+    leaky_server::register_panic_logger();
+    leaky_server::report_version();
 
     // Create the app state
     let state = match AppState::from_config(&config).await {
@@ -48,10 +47,10 @@ async fn main() {
         }
     };
 
-    let (graceful_waiter, shutdown_rx) = corpo::ssr::graceful_shutdown_blocker();
+    let (graceful_waiter, shutdown_rx) = leaky_server::graceful_shutdown_blocker();
     let mut handles = Vec::new();
 
-    let server = corpo::ssr::server(*config.log_level(), state, shutdown_rx).await;
+    let server = leaky_server::server(config, state, shutdown_rx).await;
     handles.push(server);
 
     let _ = graceful_waiter.await;
@@ -66,11 +65,4 @@ async fn main() {
         );
         std::process::exit(4);
     }
-}
-
-#[cfg(not(feature = "ssr"))]
-pub fn main() {
-    // no client-side main function
-    // unless we want this to work with e.g., Trunk for a purely client-side app
-    // see lib.rs for hydration function instead
 }

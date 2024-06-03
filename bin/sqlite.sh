@@ -3,7 +3,7 @@
 set -o errexit
 set -o nounset
 
-DEFAULT_DATABASE_URL="sqlite://./data/server.db"
+DEFAULT_DATABASE_URL="sqlite://$(pwd)/data/server.db"
 
 function database-url {
 	# Check if the DATABASE_URL environment variable is set
