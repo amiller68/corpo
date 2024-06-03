@@ -5,7 +5,6 @@ mod health;
 mod server;
 mod version;
 
-use std::net::SocketAddr;
 use std::time::Duration;
 
 use tokio::signal::unix::{signal, SignalKind};

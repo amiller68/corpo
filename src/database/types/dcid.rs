@@ -10,9 +10,9 @@ use sqlx::{Decode, Encode, Sqlite, Type};
 #[serde(transparent)]
 pub struct DCid(Cid);
 
-impl Into<Cid> for DCid {
-    fn into(self) -> Cid {
-        self.0
+impl From<DCid> for Cid {
+    fn from(val: DCid) -> Self {
+        val.0
     }
 }
 

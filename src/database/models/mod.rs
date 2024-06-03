@@ -1,6 +1,5 @@
 use cid::Cid;
 use sqlx::FromRow;
-use time::OffsetDateTime;
 
 use crate::database::types::DCid;
 use crate::database::DatabaseConnection;
@@ -18,10 +17,8 @@ CREATE UNIQUE INDEX root_cids_cid_previous_cid ON root_cids (cid, previous_cid);
 
 #[derive(FromRow, Debug)]
 pub struct RootCid {
-    id: i64,
     cid: DCid,
     previous_cid: DCid,
-    created_at: OffsetDateTime,
 }
 
 impl RootCid {
@@ -53,7 +50,7 @@ impl RootCid {
                 $2,
                 CURRENT_TIMESTAMP
             )
-            RETURNING id, cid as "cid: DCid", previous_cid as "previous_cid: DCid", created_at
+            RETURNING cid as "cid: DCid", previous_cid as "previous_cid: DCid"
             "#,
             dcid,
             dprevious_cid
@@ -63,12 +60,12 @@ impl RootCid {
         .map_err(|e| match e {
             sqlx::Error::Database(ref db_error) => {
                 if db_error.constraint().unwrap_or("") == "root_cids_cid_previous_cid" {
-                    return RootCidError::Conflict(*cid, *previous_cid);
+                    RootCidError::Conflict(*cid, *previous_cid)
                 } else {
-                    return e.into();
+                    e.into()
                 }
             }
-            _ => return e.into(),
+            _ => e.into(),
         })?;
         Ok(root_cid)
     }
@@ -78,10 +75,8 @@ impl RootCid {
             RootCid,
             r#"
             SELECT 
-                id, 
                 cid as "cid: DCid", 
-                previous_cid as "previous_cid: DCid",
-                created_at
+                previous_cid as "previous_cid: DCid"
             FROM root_cids
             ORDER BY 
                 created_at DESC 
@@ -99,14 +94,6 @@ impl RootCid {
 
     pub fn previous_cid(&self) -> Cid {
         self.previous_cid.into()
-    }
-
-    pub fn id(&self) -> i64 {
-        self.id
-    }
-
-    pub fn created_at(&self) -> OffsetDateTime {
-        self.created_at
     }
 }
 

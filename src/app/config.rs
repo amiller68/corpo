@@ -97,9 +97,9 @@ impl Config {
 #[derive(Debug, thiserror::Error)]
 pub enum ConfigError {
     #[error("Invalid URL: {0}")]
-    InvalidUrl(#[from] url::ParseError),
+    Url(#[from] url::ParseError),
     #[error("Missing Env: {0}")]
-    InvalidEnv(#[from] env::VarError),
+    Env(#[from] env::VarError),
     #[error("Invalid Socket Address: {0}")]
-    InvalidListenAddr(#[from] std::net::AddrParseError),
+    ListenAddr(#[from] std::net::AddrParseError),
 }
