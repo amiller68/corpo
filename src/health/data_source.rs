@@ -4,10 +4,8 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use axum::async_trait;
-use axum::extract::{FromRef, FromRequestParts};
+use axum::extract::{FromRequestParts};
 use http::request::Parts;
-
-use crate::database::Database;
 
 #[async_trait]
 pub trait DataSource {
@@ -43,18 +41,11 @@ impl Deref for StateDataSource {
     }
 }
 
-struct DbSource {
-    db: Database,
-}
+struct ExampleSource;
 
 #[async_trait]
-impl DataSource for DbSource {
+impl DataSource for ExampleSource {
     async fn is_ready(&self) -> Result<(), DataSourceError> {
-        let _ = sqlx::query("SELECT 1 as id;")
-            .fetch_one(self.db.deref())
-            .await
-            .map_err(|_| DataSourceError::DependencyFailure)?;
-
         Ok(())
     }
 }
@@ -62,15 +53,12 @@ impl DataSource for DbSource {
 #[async_trait]
 impl<S> FromRequestParts<S> for StateDataSource
 where
-    Database: FromRef<S>,
     S: Send + Sync,
 {
     type Rejection = ();
 
-    async fn from_request_parts(_parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
-        Ok(StateDataSource(Arc::new(DbSource {
-            db: Database::from_ref(state),
-        })))
+    async fn from_request_parts(_parts: &mut Parts, _state: &S) -> Result<Self, Self::Rejection> {
+        Ok(StateDataSource(Arc::new(ExampleSource)))
     }
 }
 

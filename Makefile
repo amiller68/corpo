@@ -6,15 +6,15 @@ default: build
 build:
 	cargo build
 
-.PHONY: sqlite chroma ollama
+.PHONY: run
 run:
-	./bin/run.sh
+	cargo run
 
 .PHONY: check
 check:
 	cargo check
 
-.PHONY: chroma-clean ollama-clean sqlite-clean clean
+.PHONY: clean
 clean:
 	cargo clean
 
@@ -29,32 +29,6 @@ fmt-check:
 .PHONY: clippy
 clippy:
 	cargo clippy --all-targets --all-features --tests -- -D warnings
-
-.PHONY: sqlite
-sqlite:
-	./bin/sqlite.sh create && \
-			./bin/sqlite.sh migrate && \
-				./bin/sqlite.sh queries
-
-.PHONY: sqlite-clean
-sqlite-clean:
-	./bin/sqlite.sh clean
-
-.PHONY: ollama
-ollama:
-	./bin/ollama.sh run
-
-.PHONY: ollama-clean
-ollama-clean:
-	./bin/ollama.sh clean
-
-.PHONY: chroma
-chroma:
-	./bin/chroma.sh run
-
-.PHONY: chroma-clean
-chroma-clean:
-	./bin/chroma.sh clean
 
 .PHONY: test
 test:
