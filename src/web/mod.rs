@@ -5,7 +5,7 @@ use leptos_router::*;
 mod error;
 mod pages;
 
-use pages::{AboutPage, ErrorPage, HomePage, BlogPage};
+use pages::{AboutPage, BlogPage, BlogPost, ErrorPage, HomePage};
 
 pub use error::WebAppError;
 
@@ -57,13 +57,13 @@ pub fn WebApp() -> impl IntoView {
 
       // content for this welcome page
       <Router fallback=|| {
-          let mut outside_errors = Errors::default();
-          outside_errors.insert_with_default_key(WebAppError::NotFound);
-          view! {
-              <ErrorPage outside_errors/>
-          }
-          .into_view()
-      }>
+            let mut outside_errors = Errors::default();
+            outside_errors.insert_with_default_key(WebAppError::NotFound);
+            view! {
+                <ErrorPage outside_errors/>
+            }
+            .into_view()
+        }>
           <header class="relative">
           <dialog
               on:click=toggle_menu_dialog
@@ -102,6 +102,8 @@ pub fn WebApp() -> impl IntoView {
                 <Route path="" view=HomePage/>
                 <Route path="about" view=AboutPage/>
                 <Route path="blog" view=BlogPage/>
+
+                    <Route path="blog/:name" view=BlogPost/>
               </Routes>
           </main>
       </Router>

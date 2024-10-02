@@ -1,9 +1,9 @@
 mod about;
+mod blog;
 mod error;
 mod home;
-mod blog;
 
 pub use about::AboutPage;
+pub use blog::{BlogPage, BlogPost};
 pub use error::ErrorPage;
 pub use home::HomePage;
-pub use blog::{BlogPage};

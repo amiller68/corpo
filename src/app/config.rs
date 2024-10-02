@@ -1,6 +1,6 @@
 use std::env;
-use std::str::FromStr;
 use std::net::SocketAddr;
+use std::str::FromStr;
 
 use dotenvy::dotenv;
 
@@ -23,7 +23,7 @@ impl Config {
         if dotenv().is_err() {
             tracing::warn!("No .env file found");
         }
-    
+
         let listen_addr_str = match env::var("LISTEN_ADDR") {
             Ok(addr) => addr,
             Err(_e) => {
@@ -37,7 +37,7 @@ impl Config {
             Ok(url) => url,
             Err(_e) => {
                 tracing::warn!("No LEAKY_URL found in .env");
-                "http://localhost:3001".to_string()
+                "https://leaky.krondor.org".to_string()
             }
         };
         let leaky_url = Url::parse(&leaky_url_str)?;
