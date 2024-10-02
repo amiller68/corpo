@@ -37,7 +37,7 @@ impl Config {
             Ok(url) => url,
             Err(_e) => {
                 tracing::warn!("No LEAKY_URL found in .env");
-                "http://localhost:3000".to_string()
+                "http://localhost:3001".to_string()
             }
         };
         let leaky_url = Url::parse(&leaky_url_str)?;

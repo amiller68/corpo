@@ -7,6 +7,8 @@ pub mod app;
 #[cfg(feature = "ssr")]
 mod health;
 #[cfg(feature = "ssr")]
+mod api;
+#[cfg(feature = "ssr")]
 mod server;
 
 #[cfg(feature = "ssr")]

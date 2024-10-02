@@ -56,15 +56,18 @@ tracing-subscriber = { version = "^0.3", default-features = false, features = [
   "time",
   "tracing",
 ], optional = true }
-reqwest = "0.12.3"
+reqwest = { version = "0.12.3", features = ["json"] }
 url = "2.5.0"
 serde = "1.0.197"
 leptos_config = "0.6.11"
-serde_json = "1.0.115"
+serde_json = "1.0.128"
 axum-extra = { version = "0.9.3", optional = true, features = ["typed-header"] }
 leptos_icons = "0.3.0"
 icondata = "0.3.0"
 web-sys = "0.3.69"
+time = { version = "0.3.36", features = ["serde", "formatting"] }
+reqwasm = "0.5.0"
+mime_guess = "2.0.5"
 
 [features]
 hydrate = ["leptos/hydrate", "leptos_meta/hydrate", "leptos_router/hydrate"]

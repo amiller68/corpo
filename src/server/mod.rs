@@ -1,6 +1,6 @@
 use axum::body::Body;
 use axum::extract::State;
-use axum::http::{Request as AxumRequest, Response as AxumResponse, StatusCode, Uri};
+use axum::http::{header, Request as AxumRequest, Response as AxumResponse, StatusCode, Uri};
 use axum::response::{IntoResponse, Response};
 use axum::routing::get;
 use axum::Router;
@@ -16,7 +16,11 @@ use tracing::Level;
 
 use crate::app::{AppState, AppStateSetupError};
 use crate::health;
+use crate::api;
 use crate::web::WebApp;
+
+const HEALTH_ROUTE: &str = "/_status";
+const API_ROUTE: &str = "/api/v0";
 
 pub async fn file_and_error_handler(
     uri: Uri,
@@ -25,13 +29,26 @@ pub async fn file_and_error_handler(
 ) -> Response {
     let options = state.leptos_options.clone();
     let root = options.site_root.clone();
-    let res = get_static_file(uri.clone(), &root).await.unwrap();
-
-    if res.status() == StatusCode::OK {
-        res.into_response()
-    } else {
-        let handler = leptos_axum::render_app_to_stream(options.to_owned(), WebApp);
-        handler(req).await.into_response()
+    
+    // Try to get the static file first
+    match get_static_file(uri.clone(), &root).await {
+        Ok(res) => {
+            // If it's a static file, return it with the correct content type
+            res.into_response()
+        }
+        Err(_) => {
+            // If it's not a static file, render the app
+            let handler = leptos_axum::render_app_to_stream(options.to_owned(), WebApp);
+            let mut response = handler(req).await.into_response();
+            
+            // Ensure the content type is set for SSR responses
+            response.headers_mut().insert(
+                header::CONTENT_TYPE,
+                header::HeaderValue::from_static("text/html; charset=utf-8"),
+            );
+            
+            response
+        }
     }
 }
 
@@ -40,10 +57,25 @@ async fn get_static_file(uri: Uri, root: &str) -> Result<AxumResponse<Body>, (St
         .uri(uri.clone())
         .body(Body::empty())
         .unwrap();
-    // `ServeDir` implements `tower::Service` so we can call it with `tower::ServiceExt::oneshot`
-    // This path is relative to the cargo root
+    
     match ServeDir::new(root).oneshot(req).await {
-        Ok(res) => Ok(res.into_response()),
+        Ok(res) => {
+            let mut response = res.into_response();
+            
+            // Ensure content type is set for static files
+            if response.headers().get(header::CONTENT_TYPE).is_none() {
+                let content_type = mime_guess::from_path(uri.path())
+                    .first_or_octet_stream()
+                    .to_string();
+                response.headers_mut().insert(
+                    header::CONTENT_TYPE,
+                    header::HeaderValue::from_str(&content_type).unwrap(),
+                );
+            }
+            
+            Ok(response)
+        }
+        Err(_) => Err((StatusCode::NOT_FOUND, "File not found".to_string())),
     }
 }
 
@@ -84,7 +116,8 @@ pub async fn run(
     let root_router = Router::new()
         .leptos_routes_with_handler(leptos_routes, get(leptos_routes_handler))
         .fallback(file_and_error_handler)
-        .nest("/_status", health::router(state.clone()))
+        .nest(HEALTH_ROUTE, health::router(state.clone()))
+        .nest(API_ROUTE, api::router(state.clone()))
         .with_state(state)
         .layer(trace_layer);
 

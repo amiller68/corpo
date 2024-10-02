@@ -5,7 +5,7 @@ use leptos_router::*;
 mod error;
 mod pages;
 
-use pages::{AboutPage, ErrorPage, HomePage};
+use pages::{AboutPage, ErrorPage, HomePage, BlogPage};
 
 pub use error::WebAppError;
 
@@ -73,7 +73,7 @@ pub fn WebApp() -> impl IntoView {
                       <ul>
                           <li><A href="">Home</A></li>
                           <li><A href="about">About</A></li>
-                          <li><A href="https://blog.krondor.org">Blog</A></li>
+                          <li><A href="blog">Blog</A></li>
                       </ul>
                   </nav>
                   <span
@@ -101,6 +101,7 @@ pub fn WebApp() -> impl IntoView {
               <Routes>
                 <Route path="" view=HomePage/>
                 <Route path="about" view=AboutPage/>
+                <Route path="blog" view=BlogPage/>
               </Routes>
           </main>
       </Router>
