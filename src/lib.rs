@@ -1,15 +1,11 @@
-#![allow(dead_code)]
-mod ipfs;
 #[allow(dead_code)]
 mod version;
 mod web;
 
-//#[cfg(feature = "ssr")]
-//mod api;
+#[cfg(feature = "ssr")]
+mod api;
 #[cfg(feature = "ssr")]
 pub mod app;
-#[cfg(feature = "ssr")]
-mod database;
 #[cfg(feature = "ssr")]
 mod health;
 #[cfg(feature = "ssr")]

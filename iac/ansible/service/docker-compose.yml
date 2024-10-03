@@ -1,0 +1,33 @@
+services:
+  corpo:
+    image: amiller68/corpo:latest
+    ports:
+      - "3000"
+    restart: unless-stopped
+
+  swag:
+    image: ghcr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+      - URL=krondor.org
+      - VALIDATION=http
+      - CERTPROVIDER=letsencrypt
+      - EMAIL=al@krondor.org
+    volumes:
+      - ./config:/config
+    ports:
+      - 443:443
+      - 80:80
+    restart: unless-stopped
+
+volumes:
+  ipfs_data:
+
+networks:
+  default:
+    name: swag_net

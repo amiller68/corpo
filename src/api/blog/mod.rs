@@ -1,12 +1,13 @@
+use axum::routing::get;
 use axum::Router;
 use http::header::{ACCEPT, ORIGIN};
 use http::Method;
 use tower_http::cors::{Any, CorsLayer};
 
-mod blog;
-mod gallery;
-
 use crate::app::AppState;
+
+mod get_content;
+mod get_items;
 
 pub fn router(state: AppState) -> Router<AppState> {
     let cors_layer = CorsLayer::new()
@@ -16,8 +17,9 @@ pub fn router(state: AppState) -> Router<AppState> {
         .allow_credentials(false);
 
     Router::new()
-        .nest("/blog", blog::router(state.clone()))
-        .nest("/gallery", gallery::router(state.clone()))
+        .route("/", get(get_items::handler))
+        .route("/:name", get(get_content::handler))
+        // TODO: get content
         .with_state(state)
         .layer(cors_layer)
 }

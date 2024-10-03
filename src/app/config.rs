@@ -1,4 +1,5 @@
 use std::env;
+use std::net::SocketAddr;
 use std::str::FromStr;
 
 use dotenvy::dotenv;
@@ -7,11 +8,11 @@ use url::Url;
 
 #[derive(Debug)]
 pub struct Config {
-    // Database Config
-    sqlite_database_url: Url,
+    // Listen address
+    listen_addr: SocketAddr,
 
-    // Ipfs Gateway Config
-    ipfs_gateway_url: Url,
+    // leaky url Config
+    leaky_url: Url,
 
     // Logging Level
     log_level: tracing::Level,
@@ -23,23 +24,23 @@ impl Config {
             tracing::warn!("No .env file found");
         }
 
-        let sqlite_database_url_str = match env::var("SQLITE_DATABASE_URL") {
-            Ok(url) => url,
+        let listen_addr_str = match env::var("LISTEN_ADDR") {
+            Ok(addr) => addr,
             Err(_e) => {
-                tracing::warn!("No SQLITE_DATABASE_URL found in .env. Using default");
-                "sqlite://./data/server.db".to_string()
+                tracing::warn!("No LISTEN_ADDR found in .env. Using default");
+                "127.0.0.1:3001".to_string()
             }
         };
-        let sqlite_database_url = Url::parse(&sqlite_database_url_str)?;
+        let listen_addr = listen_addr_str.parse()?;
 
-        let ipfs_gateway_url_str = match env::var("IPFS_GATEWAY_URL") {
+        let leaky_url_str = match env::var("LEAKY_URL") {
             Ok(url) => url,
             Err(_e) => {
-                tracing::warn!("No IPFS_GATEWAY_URL found in .env");
-                "http://localhost:8080".to_string()
+                tracing::warn!("No LEAKY_URL found in .env");
+                "https://leaky.krondor.org".to_string()
             }
         };
-        let ipfs_gateway_url = Url::parse(&ipfs_gateway_url_str)?;
+        let leaky_url = Url::parse(&leaky_url_str)?;
 
         let log_level_str = match env::var("LOG_LEVEL") {
             Ok(level) => level,
@@ -57,18 +58,18 @@ impl Config {
         };
 
         Ok(Config {
-            sqlite_database_url,
-            ipfs_gateway_url,
+            listen_addr,
+            leaky_url,
             log_level,
         })
     }
 
-    pub fn sqlite_database_url(&self) -> &Url {
-        &self.sqlite_database_url
+    pub fn listen_addr(&self) -> &SocketAddr {
+        &self.listen_addr
     }
 
-    pub fn ipfs_gateway_url(&self) -> &Url {
-        &self.ipfs_gateway_url
+    pub fn leaky_url(&self) -> &Url {
+        &self.leaky_url
     }
 
     pub fn log_level(&self) -> &tracing::Level {
@@ -82,4 +83,8 @@ pub enum ConfigError {
     InvalidUrl(#[from] url::ParseError),
     #[error("Missing Env: {0}")]
     InvalidEnv(#[from] env::VarError),
+    #[error("Invalid LogLevel: {0}")]
+    InvalidLogLevel(#[from] std::num::ParseIntError),
+    #[error("Invalid SocketAddr: {0}")]
+    InvalidSocketAddr(#[from] std::net::AddrParseError),
 }
