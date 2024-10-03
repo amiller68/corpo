@@ -4,7 +4,7 @@ use std::ops::Deref;
 use std::sync::Arc;
 
 use axum::async_trait;
-use axum::extract::{FromRequestParts};
+use axum::extract::FromRequestParts;
 use http::request::Parts;
 
 #[async_trait]

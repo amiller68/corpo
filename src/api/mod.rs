@@ -4,6 +4,7 @@ use http::Method;
 use tower_http::cors::{Any, CorsLayer};
 
 mod blog;
+mod gallery;
 
 use crate::app::AppState;
 
@@ -16,6 +17,7 @@ pub fn router(state: AppState) -> Router<AppState> {
 
     Router::new()
         .nest("/blog", blog::router(state.clone()))
+        .nest("/gallery", gallery::router(state.clone()))
         .with_state(state)
         .layer(cors_layer)
 }

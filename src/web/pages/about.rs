@@ -64,4 +64,3 @@ pub fn AboutPage() -> impl IntoView {
         </div>
     }
 }
-

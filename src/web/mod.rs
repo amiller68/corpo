@@ -5,7 +5,7 @@ use leptos_router::*;
 mod error;
 mod pages;
 
-use pages::{AboutPage, BlogPage, BlogPost, ErrorPage, HomePage};
+use pages::{AboutPage, BlogPage, BlogPost, ErrorPage, GalleryImage, GalleryPage, HomePage};
 
 pub use error::WebAppError;
 
@@ -49,7 +49,7 @@ pub fn WebApp() -> impl IntoView {
       <Script src="https://unpkg.com/htmx.org@2.0.0-alpha1/dist/htmx.min.js"/>
 
       // injects a stylesheet into the document <head>
-      // id=leptos means cargo-leptos will hot-reload this stylesheet
+      // id=leptos means cargo-leptos willa hot-reload this stylesheet
       <Stylesheet id="leptos" href="/assets/corpo.css"/>
 
       // sets the document title
@@ -74,6 +74,7 @@ pub fn WebApp() -> impl IntoView {
                           <li><A href="">Home</A></li>
                           <li><A href="about">About</A></li>
                           <li><A href="blog">Blog</A></li>
+                          <li><A href="gallery">Gallery</A></li>
                       </ul>
                   </nav>
                   <span
@@ -102,8 +103,9 @@ pub fn WebApp() -> impl IntoView {
                 <Route path="" view=HomePage/>
                 <Route path="about" view=AboutPage/>
                 <Route path="blog" view=BlogPage/>
-
-                    <Route path="blog/:name" view=BlogPost/>
+                <Route path="blog/:name" view=BlogPost/>
+                <Route path="gallery" view=GalleryPage/>
+                <Route path="gallery/:name" view=GalleryImage/>
               </Routes>
           </main>
       </Router>

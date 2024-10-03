@@ -14,9 +14,9 @@ use tower_http::trace::{DefaultOnFailure, DefaultOnResponse, TraceLayer};
 use tower_http::LatencyUnit;
 use tracing::Level;
 
+use crate::api;
 use crate::app::{AppState, AppStateSetupError};
 use crate::health;
-use crate::api;
 use crate::web::WebApp;
 
 const HEALTH_ROUTE: &str = "/_status";
@@ -29,7 +29,7 @@ pub async fn file_and_error_handler(
 ) -> Response {
     let options = state.leptos_options.clone();
     let root = options.site_root.clone();
-    
+
     // Try to get the static file first
     match get_static_file(uri.clone(), &root).await {
         Ok(res) => {
@@ -40,13 +40,13 @@ pub async fn file_and_error_handler(
             // If it's not a static file, render the app
             let handler = leptos_axum::render_app_to_stream(options.to_owned(), WebApp);
             let mut response = handler(req).await.into_response();
-            
+
             // Ensure the content type is set for SSR responses
             response.headers_mut().insert(
                 header::CONTENT_TYPE,
                 header::HeaderValue::from_static("text/html; charset=utf-8"),
             );
-            
+
             response
         }
     }
@@ -57,11 +57,11 @@ async fn get_static_file(uri: Uri, root: &str) -> Result<AxumResponse<Body>, (St
         .uri(uri.clone())
         .body(Body::empty())
         .unwrap();
-    
+
     match ServeDir::new(root).oneshot(req).await {
         Ok(res) => {
             let mut response = res.into_response();
-            
+
             // Ensure content type is set for static files
             if response.headers().get(header::CONTENT_TYPE).is_none() {
                 let content_type = mime_guess::from_path(uri.path())
@@ -72,10 +72,9 @@ async fn get_static_file(uri: Uri, root: &str) -> Result<AxumResponse<Body>, (St
                     header::HeaderValue::from_str(&content_type).unwrap(),
                 );
             }
-            
+
             Ok(response)
         }
-        Err(_) => Err((StatusCode::NOT_FOUND, "File not found".to_string())),
     }
 }
 

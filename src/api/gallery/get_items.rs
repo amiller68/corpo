@@ -9,10 +9,7 @@ use time::OffsetDateTime;
 use crate::app::AppState;
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-struct ItemMetadata {
-    description: String,
-    title: String,
-}
+struct ItemMetadata {}
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 struct ItemData {
@@ -24,8 +21,6 @@ struct ItemData {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 struct Item {
     name: String,
-    title: String,
-    description: String,
     created_at: OffsetDateTime,
 }
 
@@ -33,7 +28,7 @@ pub async fn handler(State(state): State<AppState>) -> Result<impl IntoResponse,
     let leaky_url = state.leaky_url.clone();
     let client = Client::new();
     let response: Vec<Value> = client
-        .get(leaky_url.join("/writing").unwrap())
+        .get(leaky_url.join("/visual").unwrap())
         .send()
         .await
         .unwrap()
@@ -72,8 +67,6 @@ fn parse_item_data(value: &Value) -> Option<Item> {
 
             Item {
                 name: v_name,
-                title: data.metadata.title,
-                description: data.metadata.description,
                 created_at: date.with_hms(0, 0, 0).unwrap().assume_utc(),
             }
         })

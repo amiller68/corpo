@@ -12,7 +12,7 @@ pub async fn handler(
     let leaky_url = state.leaky_url.clone();
     let client = Client::new();
     let url = leaky_url
-        .join(&format!("/writing/{}?html=true", name))
+        .join(&format!("/visual/{}", name))
         .map_err(|_| GetItemsError::UrlJoinError)?;
 
     let response = client
@@ -32,7 +32,7 @@ pub async fn handler(
 
     Ok(Response::builder()
         .status(StatusCode::OK)
-        .header(header::CONTENT_TYPE, "text/html; charset=utf-8")
+        .header(header::CONTENT_TYPE, "image/jpeg")
         .body(Body::from(bytes))
         .map_err(|_| GetItemsError::ResponseBuildError)?)
 }

@@ -1,0 +1,86 @@
+name: 🐳 Build, Push, and Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.check.outputs.should_build }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
+      - name: Check for relevant changes
+        id: check
+        run: |
+          git diff --name-only HEAD^ HEAD > changes.txt
+          if grep -qE '^src/|^Cargo.lock|^output.css$' changes.txt; then
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          fi
+
+  build-and-push:
+    needs: check-changes
+    runs-on: ubuntu-latest
+    if: needs.check-changes.outputs.should_build == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/corpo:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/corpo:${{ github.sha }}
+
+  deploy:
+    needs: [check-changes, build-and-push]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh/corpo
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/corpo/admin
+          chmod 600 ~/.ssh/corpo/admin
+
+      - name: Create .env file in ./iac
+        run: |
+          mkdir -p ./iac
+          echo "ADMIN_KEY_PATH=~/.ssh/corpo/admin" > ./iac/.env
+          echo "INVENTORY_PATH=./hosts/digitalOcean/production" >> ./iac/.env
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ansible
+          ansible-galaxy collection install ansible.posix
+
+      - name: Run deploy script
+        run: |
+          chmod +x ./bin/deploy.sh
+          ./bin/deploy.sh
+
+      - name: Clean up SSH key
+        if: always()
+        run: rm -f ~/.ssh/corpo/admin

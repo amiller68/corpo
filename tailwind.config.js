@@ -8,20 +8,21 @@ module.exports = {
     extend: {
       keyframes: {
         typewriter: {
-          'to': { left: '100%' }
+          to: { left: "100%" },
         },
-       blink: {
-          '0%': {
-            opacity: '0',
+        blink: {
+          "0%": {
+            opacity: "0",
           },
-          '50%': {
-            opacity: '1',
+          "50%": {
+            opacity: "1",
           },
         },
       },
       animation: {
-        typewriter: 'typewriter 2s steps(11) forwards', // Adjust the steps based on the text length
-        caret: 'typewriter 2s steps(11) forwards, blink 1s steps(2) infinite 2s',
+        typewriter: "typewriter 2s steps(11) forwards", // Adjust the steps based on the text length
+        caret:
+          "typewriter 2s steps(11) forwards, blink 1s steps(2) infinite 2s",
       },
       colors: {
         black: "#000",
@@ -29,12 +30,12 @@ module.exports = {
         accent: "#f56565",
       },
       spacing: {
-        '4': '1rem',
-        '8': '2rem',
-        '12': '3rem',
-        '16': '4rem',
+        4: "1rem",
+        8: "2rem",
+        12: "3rem",
+        16: "4rem",
       },
     },
   },
-  plugins: []
+  plugins: [require("@tailwindcss/typography")],
 };
