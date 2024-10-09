@@ -73,6 +73,7 @@ pub fn WebApp() -> impl IntoView {
                       <ul>
                           <li><A href="">Home</A></li>
                           <li><A href="about">About</A></li>
+                          <li><A href="https://docs.google.com/forms/d/1V16MGOz2V-JvivA7EMeaS-O-4c1duojn6V8hsGRcM2k/prefill">Get in Touch</A></li>
                           <li><A href="blog">Blog</A></li>
                           <li><A href="gallery">Gallery</A></li>
                       </ul>

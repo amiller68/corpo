@@ -9,27 +9,39 @@ pub fn AboutPage() -> impl IntoView {
             <div class="max-w-[50ch] w-full px-4">
                 <h1
                     class="relative w-[max-content] font-mono text-4xl font-bold before:absolute before:inset-0 before:animate-typewriter before:bg-white after:absolute after:inset-0 after:w-[0.125em] after:animate-caret after:bg-black">
-                    > "about me"
+                    > "about"
                 </h1>
                 <div
                     class="mt-8 text-md text-left"
                 >
                     <p class="mb-4">
                         "
-                        hey there, my name is alex, im a software engineer with a product-minded focus. 
+                        hey there, welcomer to krondor.org!
                         "
                     </p>
                     <p class="mb-4">
                         "
-                        i have a passion for creating software that empowers, engages, and excels. 
-                        i'm currently based in new york city, helping people all over the world turn bold ideas into reality.
+                        my name is alex. 
+                        i'm a software engineer with a background in product, 
+                        system, and protocol design, having worked with teams of all sizes, 
+                        all across the world.
+                        i'm currently based in new york city, helping my clients turn their dreams into reality.
                         "               
                     </p>
                     <p class="mb-4">
                         "
-                        interested in working together? let's connect.
+                        interested in working together?
                         "
                     </p>
+
+                    <a
+                        class="text-blue-500 hover:underline"
+                        href="https://docs.google.com/forms/d/1V16MGOz2V-JvivA7EMeaS-O-4c1duojn6V8hsGRcM2k/prefill"
+                    >
+                        "
+                        get in touch!
+                        "
+                    </a>
                 </div>
             </div>
             <div
